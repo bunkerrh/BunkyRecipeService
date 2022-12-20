@@ -27,5 +27,5 @@ type Ingredient struct {
 type Instruction struct {
 	StepNo          string `json:"stepNo"`
 	StepInstruction string `json:"stepInstructions"`
-	RecipeId        int    `json:"recipeId"`
+	RecipeId        int    `json:"recipeId,omitempty"`
 }

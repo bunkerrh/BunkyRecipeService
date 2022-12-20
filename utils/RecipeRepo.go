@@ -8,7 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var SELECT_INGREDIENTS_BY_ID = "select ring.measurementAmount, ring.measurement, ing.name from bunkyrecipedb.recipe_ingredients as ring inner join bunkyrecipedb.ingredients as ing ON ring.ingredientsId = ing.id inner join bunkyrecipedb.recipe_list as rList ON ring.ingredientsId = ing.id where rlist.id = %s"
+var SELECT_INGREDIENTS_BY_ID = "select ring.measurementAmount, ring.measurement, ing.name from bunkyrecipedb.recipe_ingredients as ring inner join bunkyrecipedb.ingredients as ing ON ring.ingredientId = ing.id inner join bunkyrecipedb.recipe_list as rList ON ring.ingredientId = ing.id where rlist.id = %s"
 var SELECT_RECIPE_BY_ID = "select id, recipeName,isVegan, timeHours,timeMinutes, timeSeconds from bunkyrecipedb.recipe_list where id = %s"
 var SELECT_INSTRUCTIONS_BY_ID = "select stepInstruction, stepNum from bunkyrecipedb.instructions where recipeId = %s ORDER BY stepNum ASC"
 
