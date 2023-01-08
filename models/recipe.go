@@ -6,13 +6,26 @@ package Models
 // probably need allergen list (actually this will be beyond mvp)
 
 type Recipe struct {
-	Id           int           `json:"id"`
+	Id           string        `json:"id"`
 	RecipeName   string        `json:"recipeName"`
+	ImgPath      string        `json:"imgPath", omitempty`
 	IsVegan      bool          `json:"isVegan"`
 	TimeHours    int           `json:"timeHours"`
 	TimeMinutes  int           `json:"timeMinutes"`
 	TimeSeconds  int           `json:"timeSeconds"`
-	Ingredients  []Ingredient  `json:"Ingredients, omitempty"`
+	Ingredients  []Ingredient  `json:"ingredients, omitempty"`
+	Instructions []Instruction `json:"instructions, omitempty"`
+}
+
+type RecipeResponse struct {
+	Id           string        `json:"id"`
+	RecipeName   string        `json:"recipeName"`
+	FoodPic      []byte        `json:"foodPic"`
+	IsVegan      bool          `json:"isVegan"`
+	TimeHours    int           `json:"timeHours"`
+	TimeMinutes  int           `json:"timeMinutes"`
+	TimeSeconds  int           `json:"timeSeconds"`
+	Ingredients  []Ingredient  `json:"ingredients, omitempty"`
 	Instructions []Instruction `json:"instructions, omitempty"`
 }
 
@@ -25,7 +38,7 @@ type Ingredient struct {
 }
 
 type Instruction struct {
-	StepNo          string `json:"stepNo"`
+	StepNo          int    `json:"stepNo"`
 	StepInstruction string `json:"stepInstructions"`
 	RecipeId        int    `json:"recipeId,omitempty"`
 }
