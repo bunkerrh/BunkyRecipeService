@@ -2,6 +2,7 @@ package utils
 
 import (
 	Models "BunkyRecipeService/models"
+	"BunkyRecipeService/service"
 	"context"
 	"database/sql"
 	"fmt"
@@ -10,8 +11,64 @@ import (
 
 var SELECT_INGREDIENTS_BY_ID = "select ring.measurementAmount, ring.measurement, ing.name from bunkyrecipedb.recipe_ingredients as ring inner join bunkyrecipedb.ingredients as ing ON ring.ingredientId = ing.id inner join bunkyrecipedb.recipe_list as rList ON ring.ingredientId = ing.id where rlist.id = %s"
 var SELECT_RECIPE_BY_ID = "select id, recipeName,isVegan, timeHours,timeMinutes, timeSeconds from bunkyrecipedb.recipe_list where id = %s"
+var SELECT_ALL_RECIPES = "select id, recipeName,isVegan, timeHours,timeMinutes, timeSeconds, imgPath from bunkyrecipedb.recipe_list"
+
 var SELECT_INSTRUCTIONS_BY_ID = "select stepInstruction, stepNum from bunkyrecipedb.instructions where recipeId = %s ORDER BY stepNum ASC"
 
+func GetAllRecipe() ([]Models.RecipeResponse, error) {
+	// so for this we need to get all the recipes
+	// what we will have to do is get the top 50 or so recipes and then filte it down from there.
+	//But that is such a far away concern for now.
+
+	fmt.Println("Get Recipes")
+	db, err := sql.Open("mysql", "root:Chester89!@tcp(127.0.0.1:3306)/bunkyrecipedb")
+	ctx := context.Background()
+
+	tsql := fmt.Sprintf(SELECT_ALL_RECIPES)
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var recipeList []Models.RecipeResponse
+	for rows.Next() {
+		var recipeName, id, imgPath string
+		var isVegan, timeHours, timeMinutes, timeSeconds int
+		var vegan = false
+		if isVegan == 1 {
+			vegan = true
+		}
+		err := rows.Scan(&id, &recipeName, &isVegan, &timeHours, &timeMinutes, &timeSeconds, &imgPath)
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Println("Get Ingredients")
+		var ing, ingError = GetRecipeIngredientsById(id)
+		if ingError != nil {
+			return nil, ingError
+		}
+		fmt.Println("GetRecipeInstructionsById")
+		var instruction, insError = GetRecipeInstructionsById(id)
+		if insError != nil {
+			return nil, insError
+		}
+
+		fmt.Println("imagePath:" + imgPath)
+
+		image, err := service.GetImageByFilePath(imgPath)
+		if err != nil {
+
+		}
+
+		recipeWithImage := Models.RecipeResponse{Id: id, RecipeName: recipeName, IsVegan: vegan, TimeHours: timeHours, TimeMinutes: timeMinutes, TimeSeconds: timeSeconds, Ingredients: ing, Instructions: instruction, FoodPic: image}
+
+		recipeList = append(recipeList, recipeWithImage)
+	}
+	return recipeList, nil
+}
 func GetRecipe(recipeId string) ([]Models.Recipe, error) {
 
 	fmt.Println("Get Recipes")
@@ -46,8 +103,8 @@ func GetRecipe(recipeId string) ([]Models.Recipe, error) {
 	var recipe Models.Recipe
 	var recipes []Models.Recipe
 	for rows.Next() {
-		var recipeName string
-		var id, isVegan, timeHours, timeMinutes, timeSeconds int
+		var id, recipeName string
+		var isVegan, timeHours, timeMinutes, timeSeconds int
 		var vegan = false
 		if isVegan == 1 {
 			vegan = true
@@ -123,7 +180,8 @@ func GetRecipeInstructionsById(recipeId string) ([]Models.Instruction, error) {
 	var instructions []Models.Instruction
 
 	for instructionsRows.Next() {
-		var stepNum, stepInstruction string
+		var stepInstruction string
+		var stepNum int
 
 		err := instructionsRows.Scan(&stepInstruction, &stepNum)
 		if err != nil {
