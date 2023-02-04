@@ -29,6 +29,10 @@ type RecipeResponse struct {
 	Instructions []Instruction `json:"instructions, omitempty"`
 }
 
+type RecipeListResponse struct {
+	RecipeList []RecipeResponse `json:"recipeList"`
+}
+
 type Ingredient struct {
 	Name              string `json:"name""`
 	MeasurementAmount string `json:"measurementAmount"`
