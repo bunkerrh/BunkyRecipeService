@@ -2,7 +2,6 @@ package Controller
 
 import (
 	"BunkyRecipeService/utils"
-	//Models "BunkyRecipeService/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
