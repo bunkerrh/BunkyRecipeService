@@ -15,10 +15,12 @@ var SELECT_ALL_RECIPES = "select id, recipeName,isVegan, timeHours,timeMinutes, 
 
 var SELECT_INSTRUCTIONS_BY_ID = "select stepInstruction, stepNum from bunkyrecipedb.instructions where recipeId = %s ORDER BY stepNum ASC"
 
-func GetAllRecipe() ([]Models.RecipeResponse, error) {
+func GetAllRecipe() (Models.RecipeListResponse, error) {
 	// so for this we need to get all the recipes
 	// what we will have to do is get the top 50 or so recipes and then filte it down from there.
 	//But that is such a far away concern for now.
+
+	var recipeResponse = Models.RecipeListResponse{}
 
 	fmt.Println("Get Recipes")
 	db, err := sql.Open("mysql", "root:Chester89!@tcp(127.0.0.1:3306)/bunkyrecipedb")
@@ -28,7 +30,7 @@ func GetAllRecipe() ([]Models.RecipeResponse, error) {
 	// Execute query
 	rows, err := db.QueryContext(ctx, tsql)
 	if err != nil {
-		return nil, err
+		return recipeResponse, err
 	}
 	defer rows.Close()
 
@@ -42,32 +44,32 @@ func GetAllRecipe() ([]Models.RecipeResponse, error) {
 		}
 		err := rows.Scan(&id, &recipeName, &isVegan, &timeHours, &timeMinutes, &timeSeconds, &imgPath)
 		if err != nil {
-			return nil, err
+			return recipeResponse, err
 		}
 
 		fmt.Println("Get Ingredients")
 		var ing, ingError = GetRecipeIngredientsById(id)
 		if ingError != nil {
-			return nil, ingError
+			return recipeResponse, ingError
 		}
 		fmt.Println("GetRecipeInstructionsById")
 		var instruction, insError = GetRecipeInstructionsById(id)
 		if insError != nil {
-			return nil, insError
+			return recipeResponse, insError
 		}
 
 		fmt.Println("imagePath:" + imgPath)
 
 		image, err := service.GetImageByFilePath(imgPath)
 		if err != nil {
-
 		}
 
 		recipeWithImage := Models.RecipeResponse{Id: id, RecipeName: recipeName, IsVegan: vegan, TimeHours: timeHours, TimeMinutes: timeMinutes, TimeSeconds: timeSeconds, Ingredients: ing, Instructions: instruction, FoodPic: image}
 
 		recipeList = append(recipeList, recipeWithImage)
 	}
-	return recipeList, nil
+	recipeResponse = Models.RecipeListResponse{RecipeList: recipeList}
+	return recipeResponse, nil
 }
 func GetRecipe(recipeId string) ([]Models.Recipe, error) {
 

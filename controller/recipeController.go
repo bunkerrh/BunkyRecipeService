@@ -2,7 +2,6 @@ package Controller
 
 import (
 	"BunkyRecipeService/utils"
-	//Models "BunkyRecipeService/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -18,7 +17,6 @@ func getRecipeById(ctx *gin.Context) {
 		ctx.IndentedJSON(http.StatusInternalServerError, nil)
 	}
 	fmt.Printf("Read %s row(s) successfully.\n", recipes[0].RecipeName)
-
 	ctx.IndentedJSON(http.StatusOK, recipes[0])
 }
 func getAllRecipe(ctx *gin.Context) {
