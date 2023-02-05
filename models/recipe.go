@@ -20,7 +20,7 @@ type Recipe struct {
 type RecipeResponse struct {
 	Id           string        `json:"id"`
 	RecipeName   string        `json:"recipeName"`
-	FoodPic      []byte        `json:"foodPic"`
+	FoodPic      string        `json:"foodPic"`
 	IsVegan      bool          `json:"isVegan"`
 	TimeHours    int           `json:"timeHours"`
 	TimeMinutes  int           `json:"timeMinutes"`
