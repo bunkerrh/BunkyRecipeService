@@ -71,62 +71,6 @@ func GetAllRecipe() (Models.RecipeListResponse, error) {
 	return recipeResponse, nil
 }
 
-func GetRecipe(recipeId string) ([]Models.Recipe, error) {
-
-	fmt.Println("Get Recipes")
-	db, err := sql.Open("mysql", "root:Chester89!@tcp(127.0.0.1:3306)/bunkyrecipedb")
-	ctx := context.Background()
-
-	// Check if database is alive.
-	if err != nil {
-		return nil, err
-	}
-
-	tsql := fmt.Sprintf(SELECT_RECIPE_BY_ID, recipeId)
-	// Execute query
-	rows, err := db.QueryContext(ctx, tsql)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	fmt.Println("Get Ingredients")
-	var ing, ingError = GetRecipeIngredientsById(recipeId)
-	if ingError != nil {
-		return nil, ingError
-	}
-
-	fmt.Println("GetRecipeInstructionsById")
-	var instruction, insError = GetRecipeInstructionsById(recipeId)
-	if insError != nil {
-		return nil, insError
-	}
-
-	var recipe Models.Recipe
-	var recipes []Models.Recipe
-	for rows.Next() {
-		var id, recipeName string
-		var isVegan, timeHours, timeMinutes, timeSeconds int
-		var vegan = false
-		if isVegan == 1 {
-			vegan = true
-		}
-		// Get values from row.
-		err := rows.Scan(&id, &recipeName, &isVegan, &timeHours, &timeMinutes, &timeSeconds)
-		if err != nil {
-			return nil, err
-		}
-
-		fmt.Printf("ID: %d, Recipe Name: %s, Vegan: %s, timeHours: %d. timeMinutes: %d, timeSeconds: %d\n",
-			id, recipeName, vegan, timeHours, timeMinutes, timeSeconds)
-
-		recipe = Models.Recipe{Id: id, RecipeName: recipeName, IsVegan: vegan, TimeHours: timeHours, TimeMinutes: timeMinutes, TimeSeconds: timeSeconds, Ingredients: ing, Instructions: instruction}
-		recipes = append(recipes, recipe)
-	}
-
-	return recipes, nil
-}
-
 func GetRecipeIngredientsById(recipeId string) ([]Models.Ingredient, error) {
 	db, err := sql.Open("mysql", "root:Chester89!@tcp(127.0.0.1:3306)/bunkyrecipedb")
 	ctx := context.Background()
@@ -203,7 +147,7 @@ func InsertRecipe(recipe Models.Recipe) {
 	// The ingredients might be a mix of existing and nonexistent ingredients.
 	// Too restrictive to not let users enter non existent ingredients.
 	// New plan. We save food data locally but when adding new ingredients we reach out to calorie tracker API
-	
+
 	fmt.Println("Get Recipes")
 	db, err := openMySql()
 	ctx := context.Background()
