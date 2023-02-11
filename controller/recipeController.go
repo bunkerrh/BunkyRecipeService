@@ -1,7 +1,7 @@
 package Controller
 
 import (
-	"BunkyRecipeService/utils"
+	"BunkyRecipeService/repo"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -10,8 +10,8 @@ import (
 
 // Context contains data about the http request
 func getRecipeById(ctx *gin.Context) {
-	fmt.Println("Calling utils.getRecipeById")
-	recipes, err := utils.GetRecipe(ctx.Params.ByName("id"))
+	fmt.Println("Calling repo.getRecipeById")
+	recipes, err := repo.GetRecipe(ctx.Params.ByName("id"))
 	if err != nil {
 		log.Fatal("Error error getting Recipe: ", err.Error())
 		ctx.IndentedJSON(http.StatusInternalServerError, nil)
@@ -20,8 +20,8 @@ func getRecipeById(ctx *gin.Context) {
 	ctx.IndentedJSON(http.StatusOK, recipes[0])
 }
 func getAllRecipe(ctx *gin.Context) {
-	fmt.Println("Calling utils.getAllRecipe")
-	recipes, err := utils.GetAllRecipe()
+	fmt.Println("Calling repo.getAllRecipe")
+	recipes, err := repo.GetAllRecipe()
 	if err != nil {
 		log.Fatal("Error error getting Recipes List: ", err.Error())
 		ctx.IndentedJSON(http.StatusInternalServerError, nil)

@@ -1,4 +1,4 @@
-package utils
+package repo
 
 import (
 	Models "BunkyRecipeService/models"
@@ -9,7 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var SELECT_INGREDIENTS_BY_ID = "select ring.measurementAmount, ring.measurement, ing.name from bunkyrecipedb.recipe_ingredients as ring inner join bunkyrecipedb.ingredients as ing ON ring.ingredientId = ing.id inner join bunkyrecipedb.recipe_list as rList ON ring.ingredientId = ing.id where rlist.id = %s"
+var SELECT_INGREDIENTS_BY_ID = "select ring.measurementAmount, ring.measurement, ing.name from bunkyrecipedb.recipe_ingredients as ring inner join bunkyrecipedb.ingredients as ing ON ring.ingredientId = ing.id inner join bunkyrecipedb.recipe_list as rList ON rlist.id = ring.recipeId where rlist.id = %s"
 var SELECT_RECIPE_BY_ID = "select id, recipeName,isVegan, timeHours,timeMinutes, timeSeconds from bunkyrecipedb.recipe_list where id = %s"
 var SELECT_ALL_RECIPES = "select id, recipeName,isVegan, timeHours,timeMinutes, timeSeconds, imgPath from bunkyrecipedb.recipe_list"
 
@@ -21,9 +21,8 @@ func GetAllRecipe() (Models.RecipeListResponse, error) {
 	//But that is such a far away concern for now.
 
 	var recipeResponse = Models.RecipeListResponse{}
-
 	fmt.Println("Get Recipes")
-	db, err := sql.Open("mysql", "root:Chester89!@tcp(127.0.0.1:3306)/bunkyrecipedb")
+	db, err := openMySql()
 	ctx := context.Background()
 
 	tsql := fmt.Sprintf(SELECT_ALL_RECIPES)
@@ -71,6 +70,7 @@ func GetAllRecipe() (Models.RecipeListResponse, error) {
 	recipeResponse = Models.RecipeListResponse{RecipeList: recipeList}
 	return recipeResponse, nil
 }
+
 func GetRecipe(recipeId string) ([]Models.Recipe, error) {
 
 	fmt.Println("Get Recipes")
@@ -194,4 +194,30 @@ func GetRecipeInstructionsById(recipeId string) ([]Models.Instruction, error) {
 		instructions = append(instructions, instruction)
 	}
 	return instructions, nil
+}
+
+func InsertRecipe(recipe Models.Recipe) {
+
+	//We need to make an insert and then use SELECT LAST_INSERT_ID();
+
+	// The ingredients might be a mix of existing and nonexistent ingredients.
+	// Too restrictive to not let users enter non existent ingredients.
+	// New plan. We save food data locally but when adding new ingredients we reach out to calorie tracker API
+	
+	fmt.Println("Get Recipes")
+	db, err := openMySql()
+	ctx := context.Background()
+
+	tsql := fmt.Sprintf(SELECT_ALL_RECIPES)
+	// Execute query
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+
+	}
+	defer rows.Close()
+}
+
+func openMySql() (*sql.DB, error) {
+	db, err := sql.Open("mysql", "root:Chester89!@tcp(127.0.0.1:3306)/bunkyrecipedb")
+	return db, err
 }

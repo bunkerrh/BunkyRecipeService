@@ -1,0 +1,28 @@
+# syntax=docker/dockerfile:1
+
+FROM golang:1.16-alpine
+
+
+#To make things easier when running the rest of our commands, let’s create a directory inside the image that we are
+#building. This also instructs Docker to use this directory as the default destination for all subsequent commands.
+#This way we do not have to type out full file paths but can use relative paths based on this directory.
+WORKDIR /app
+
+#The go. mod file defines the module's module path, which is also the import path used for the root directory,
+#and its dependency requirements, which are the other modules needed for a successful build
+COPY go.mod ./
+#contains information used by Go to record specific hashes and versions of dependencies
+COPY go.sum ./
+
+#Go modules will be installed into a directory inside the image
+RUN go mod download
+
+#Copy our source code into the image
+COPY *.go ./
+
+#Compile the application
+RUN go build -o /docker-gs-ping
+
+EXPOSE 9091
+
+CMD [ "/docker-gs-ping" ]
