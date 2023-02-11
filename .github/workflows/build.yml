@@ -4,6 +4,7 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
@@ -26,3 +27,7 @@ jobs:
 
     #- name: Test
     # run: go test -v ./...
+    - name: Build the Docker image
+      working-directory: DockerFile
+      run: docker build . --file Dockerfile --tag bar-app:${date +%s)
+    
