@@ -30,14 +30,6 @@ func GetImageByFilePath(filePath string) (string, error) {
 	base64Encoding += toBase64(imageData)
 
 	return base64Encoding, nil
-
-	/*	imageResponse := base64.StdEncoding(len(imageData))
-
-		output := make([]byte, base64.StdEncoding.EncodedLen(len(imageData)))
-		base64.StdEncoding.Encode(output, imageData)
-
-		return output, err
-	*/
 }
 
 func toBase64(b []byte) string {
