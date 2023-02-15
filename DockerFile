@@ -1,28 +1,18 @@
-# syntax=docker/dockerfile:1
+FROM alpine:3.15 as root-certs
+RUN apk add -U --no-cache ca-certificates
+RUN addgroup -g 1001 app
+RUN adduser app -u 1001 -D -G app /home/app
 
-FROM golang:1.16-alpine
+FROM golang:1.17 as builder
+WORKDIR /bar-files
+COPY --from=root-certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -o ./bar-app ./app/./...
 
-
-#To make things easier when running the rest of our commands, let’s create a directory inside the image that we are
-#building. This also instructs Docker to use this directory as the default destination for all subsequent commands.
-#This way we do not have to type out full file paths but can use relative paths based on this directory.
-WORKDIR /app
-
-#The go. mod file defines the module's module path, which is also the import path used for the root directory,
-#and its dependency requirements, which are the other modules needed for a successful build
-COPY go.mod ./
-#contains information used by Go to record specific hashes and versions of dependencies
-COPY go.sum ./
-
-#Go modules will be installed into a directory inside the image
-RUN go mod download
-
-#Copy our source code into the image
-COPY *.go ./
-
-#Compile the application
-RUN go build -o /docker-gs-ping
-
-EXPOSE 9091
-
-CMD [ "/docker-gs-ping" ]
+FROM scratch as final
+COPY --from=root-certs /etc/passwd /etc/passwd
+COPY --from=root-certs /etc/group /etc/group
+COPY --chown=1001:1001 --from=root-certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --chown=1001:1001 --from=builder /bar-files/bar-app /bar-app
+USER app
+ENTRYPOINT ["/bar-app"]
