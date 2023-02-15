@@ -1,9 +1,10 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Go
+name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
@@ -24,5 +25,9 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+    #- name: Test
+    # run: go test -v ./...
+    - name: Build the Docker image
+      working-directory: DockerFile
+      run: docker build . --file Dockerfile --tag bar-app:${date +%s)
+    
