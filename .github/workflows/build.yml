@@ -29,5 +29,5 @@ jobs:
     # run: go test -v ./...
     - name: Build the Docker image
       working-directory: DockerFile
-      run: docker build . --file Dockerfile --tag bar-app:latest
+      run: docker build . --file Dockerfile --tag bar-files:latest
     
